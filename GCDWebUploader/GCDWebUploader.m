@@ -298,7 +298,13 @@ NS_ASSUME_NONNULL_END
     return [GCDWebServerErrorResponse responseWithClientError:kGCDWebServerHTTPStatusCode_Forbidden message:@"Uploaded file name \"%@\" is not allowed", file.fileName];
   }
   NSString* relativePath = [[request firstArgumentForControlName:@"path"] string];
-  NSString* absolutePath = [self _uniquePathForPath:[[_uploadDirectory stringByAppendingPathComponent:GCDWebServerNormalizePath(relativePath)] stringByAppendingPathComponent:file.fileName]];
+    //修改成上传文件进行覆盖的模式
+//  NSString* absolutePath = [self _uniquePathForPath:[[_uploadDirectory stringByAppendingPathComponent:GCDWebServerNormalizePath(relativePath)] stringByAppendingPathComponent:file.fileName]];
+    NSString* absolutePath = [[_uploadDirectory stringByAppendingPathComponent:GCDWebServerNormalizePath(relativePath)] stringByAppendingPathComponent:file.fileName];
+    if ([NSFileManager.defaultManager fileExistsAtPath:absolutePath]) {
+        [NSFileManager.defaultManager removeItemAtPath:absolutePath error:nil];
+    }
+    
 
   if (![self shouldUploadFileAtPath:absolutePath withTemporaryFile:file.temporaryPath]) {
     return [GCDWebServerErrorResponse responseWithClientError:kGCDWebServerHTTPStatusCode_Forbidden message:@"Uploading file \"%@\" to \"%@\" is not permitted", file.fileName, relativePath];
