@@ -47,6 +47,6 @@ Pod::Spec.new do |s|
     cs.dependency 'GCDWebServer/Core'
     cs.source_files = 'GCDWebUploader/*.{h,m}'
     cs.requires_arc = true
-    cs.resource = "GCDWebUploader/GCDWebUploader.bundle"
+    cs.resource = "Bundles/GCDWebUploader.bundle"
   end 
 end
