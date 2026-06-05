@@ -17,6 +17,10 @@ let gcdWebServerDependentHeaderSearchPaths: [CSetting] = [
     .headerSearchPath("../GCDWebServer/Responses"),
 ]
 
+let gcdWebUploaderHeaderSearchPaths: [CSetting] = [
+    .headerSearchPath("include"),
+] + gcdWebServerDependentHeaderSearchPaths
+
 let package = Package(
     name: "GCDWebServer",
     platforms: [
@@ -45,7 +49,8 @@ let package = Package(
         .target(
             name: "GCDWebServer",
             path: "GCDWebServer",
-            publicHeadersPath: ".",
+            // 仅暴露 include/ 下的公开头文件，排除 GCDWebServerPrivate.h（与 podspec private_header_files 一致）
+            publicHeadersPath: "include",
             cSettings: gcdWebServerCoreHeaderSearchPaths,
             linkerSettings: [
                 .linkedLibrary("z"),
@@ -69,10 +74,10 @@ let package = Package(
             dependencies: ["GCDWebServer"],
             path: "GCDWebUploader",
             resources: [
-                .copy("../Bundles/GCDWebUploader.bundle"),
+                .copy("GCDWebUploader.bundle"),
             ],
-            publicHeadersPath: ".",
-            cSettings: gcdWebServerDependentHeaderSearchPaths
+            publicHeadersPath: "include",
+            cSettings: gcdWebUploaderHeaderSearchPaths
         ),
     ]
 )

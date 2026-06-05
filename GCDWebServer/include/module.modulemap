@@ -1,0 +1,5 @@
+module GCDWebServer {
+    umbrella "."
+    export *
+    module * { export * }
+}

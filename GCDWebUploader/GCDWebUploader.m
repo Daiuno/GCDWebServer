@@ -60,17 +60,61 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_ASSUME_NONNULL_END
 
+static NSBundle* _GCDWebUploader_SiteBundleAtPath(NSString* bundlePath) {
+  if (bundlePath.length == 0) {
+    return nil;
+  }
+  NSBundle* resourceBundle = [NSBundle bundleWithPath:bundlePath];
+  if (resourceBundle == nil) {
+    return nil;
+  }
+
+  NSString* innerBundlePath = [resourceBundle pathForResource:@"GCDWebUploader" ofType:@"bundle"];
+  if (innerBundlePath.length) {
+    NSBundle* innerBundle = [NSBundle bundleWithPath:innerBundlePath];
+    if (innerBundle) {
+      return innerBundle;
+    }
+  }
+
+  if ([resourceBundle pathForResource:@"index" ofType:@"html"]) {
+    return resourceBundle;
+  }
+  return nil;
+}
+
+static NSBundle* _GCDWebUploader_ContentBundle(void) {
+  NSBundle* classBundle = [NSBundle bundleForClass:[GCDWebUploader class]];
+  NSArray<NSBundle*>* searchBundles = @[[NSBundle mainBundle], classBundle];
+  NSArray<NSString*>* resourceNames = @[
+    @"GCDWebServer_GCDWebUploader",  // SPM
+    @"GCDWebUploader_GCDWebUploader",  // SPM (alternate naming)
+    @"GCDWebUploader",  // CocoaPods / Xcode
+  ];
+
+  for (NSBundle* searchBundle in searchBundles) {
+    if (searchBundle == nil) {
+      continue;
+    }
+    for (NSString* resourceName in resourceNames) {
+      NSString* bundlePath = [searchBundle pathForResource:resourceName ofType:@"bundle"];
+      NSBundle* siteBundle = _GCDWebUploader_SiteBundleAtPath(bundlePath);
+      if (siteBundle) {
+        return siteBundle;
+      }
+    }
+  }
+
+  return nil;
+}
+
 @implementation GCDWebUploader
 
 @dynamic delegate;
 
 - (instancetype)initWithUploadDirectory:(NSString*)path {
   if ((self = [super init])) {
-    NSString* bundlePath = [[NSBundle bundleForClass:[GCDWebUploader class]] pathForResource:@"GCDWebUploader" ofType:@"bundle"];
-    if (bundlePath == nil) {
-      return nil;
-    }
-    NSBundle* siteBundle = [NSBundle bundleWithPath:bundlePath];
+    NSBundle* siteBundle = _GCDWebUploader_ContentBundle();
     if (siteBundle == nil) {
       return nil;
     }
